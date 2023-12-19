@@ -1,12 +1,15 @@
 {
   "name": "2.features",
   "version": "1.0.0",
-  "description": "",
+  "description": "First argument will be the Prototype (Boat) _This is only for the prototype (methods) property are define in constructor_\r \\*We cannot use the prototype to look up a value like property BECAUSE property is created when the instance of that class is created. Decorators is when we \"define\" the class\r 2nd argument is the method/property we're applying Decorator to (pilot())\r Decorator is ran only 1 time when our class is define (not instance creation)",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "reflect-metadata": "^0.2.1"
+  }
 }

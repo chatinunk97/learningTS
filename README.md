@@ -157,3 +157,113 @@ function classDecorator(constructor: typeof Boat) {
 
 This will return the constructor function of class Boat
 ```
+
+# Metadata
+
+The main concept of Metadata is it allows us to attach a data to an object
+but it doesn't get attached to the object directly
+
+It's more like a pointer to that data, like **proto** for methods of a class
+
+```
+import "reflect-metadata";
+
+const plane = {
+  color: "red",
+};
+
+Reflect.defineMetadata("note", "hi there from metadata", plane);
+
+console.log(plane); // {color : red}
+
+const note = Reflect.getMetadata("note", plane);
+
+console.log(note); // "hi there from metadata"
+```
+
+We can also attach data to an existing property/method as well
+
+```
+Reflect.defineMetadata("note", "hi there", plane, "color");
+
+const note = Reflect.getMetadata("note", plane,'color');
+console.log(note) // 'hi there'
+```
+
+This mean the object's plane has the data 'color' and a hidden metadata pointing to 'hi there'
+
+# How can use Metadata ?
+
+See this example first
+
+```
+@printMetadata
+class Plane {
+  color: string = "color";
+
+  @markFunction("123123")
+  fly(): void {
+    console.log("vrrrrrrr");
+  }
+}
+
+function markFunction(secretInfo: string) {
+  return (target: Plane, key: string) => {
+    // (<metadataKey , thevalue , theObj , theNameOftheMethod/Property)
+    Reflect.defineMetadata("secret", secretInfo, target, key);
+  };
+}
+
+function printMetadata(target: typeof Plane) {
+  for (let key in target.prototype) {
+    // We loop through the prototype which will get all of the keys
+    // Then we attempt to find ALL of the Metadata info which has the property name  "secret"
+    const secret = Reflect.getMetadata("secret", target.prototype, key);
+    console.log("From printMetadata!", secret);
+  }
+}
+
+const secret = Reflect.getMetadata("secret", Plane.prototype, "fly");
+console.log(secret);
+```
+
+Let's make it more Express looking code
+
+```
+@controller
+class Plane {
+  color: string = "color";
+
+  @get("/login")
+  fly(): void {
+    console.log("vrrrrrrr");
+  }
+}
+
+function get(path: string) {
+  return (target: Plane, key: string) => {
+    // (<metadataKey , thevalue , theObj , theNameOftheMethod/Property)
+    Reflect.defineMetadata("path", path, target, key);
+  };
+}
+
+function controller(target: typeof Plane) {
+  for (let key in target.prototype) {
+
+    //This is the highlight part since the Decorator of a class
+    will run the last we now all have the information of the method inside the class
+    that has already been modified my their decorators
+    At this step we are assembling the route and assigning it to the router
+
+
+    const path = Reflect.getMetadata("path", target.prototype, key);
+    //Assuming we have another middleware method
+    const middleware = Reflect.getMetadata("middleware",target,property,key)
+
+
+    router.get(path , middleware , target.prototype[key])
+  }
+}
+
+
+```
